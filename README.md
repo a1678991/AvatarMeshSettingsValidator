@@ -26,6 +26,7 @@ Note: Anchor and Bounds validation can be individually enabled/disabled in the s
 - 🛠️ **Smart Auto-Fix**: Automatically configures MAMeshSettings with proper Anchor Override (Hips bone)
 - ✅ **Comprehensive Validation**: Checks for missing components and proper Anchor Override configuration
 - ⚡ **Performance Optimized**: Efficient caching system for large projects
+- 🌐 **Multi-language Support**: Available in English, Japanese (日本語), and Simplified Chinese (简体中文)
 
 ## Requirements
 

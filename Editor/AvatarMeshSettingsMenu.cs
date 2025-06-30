@@ -20,8 +20,8 @@ namespace AvatarTools.Editor
 
             if (selected.Length == 0)
             {
-                EditorUtility.DisplayDialog("No Avatars Selected", 
-                    "Please select one or more GameObjects with VRCAvatarDescriptor components.", "OK");
+                EditorUtility.DisplayDialog(Localizer.Get("dialog.no_avatars"), 
+                    Localizer.Get("dialog.no_avatars_message"), "OK");
                 return;
             }
 
@@ -48,7 +48,7 @@ namespace AvatarTools.Editor
         [MenuItem("Tools/Avatar Tools/Validate All Mesh Settings", false, 100)]
         private static void ValidateAllMeshSettings()
         {
-            var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>("Avatar Mesh Settings");
+            var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>(Localizer.Get("window.title"));
             window.Show();
         }
 
@@ -60,24 +60,24 @@ namespace AvatarTools.Editor
 
             if (missingSettings.Length == 0)
             {
-                EditorUtility.DisplayDialog("No Issues Found", 
-                    "All avatars in the scene already have MAMeshSettings.", "OK");
+                EditorUtility.DisplayDialog(Localizer.Get("dialog.no_issues"), 
+                    Localizer.Get("dialog.all_configured"), "OK");
                 return;
             }
 
-            var result = EditorUtility.DisplayDialogComplex("Fix Missing Mesh Settings",
-                $"Found {missingSettings.Length} avatar(s) without MAMeshSettings.\n\nWould you like to add MAMeshSettings to all of them?",
-                "Fix All", "Cancel", "Show Details");
+            var result = EditorUtility.DisplayDialogComplex(Localizer.Get("dialog.fix_missing"),
+                string.Format(Localizer.Get("dialog.fix_missing_message"), missingSettings.Length),
+                Localizer.Get("dialog.fix_all"), Localizer.Get("dialog.cancel"), Localizer.Get("dialog.show_details"));
 
             if (result == 0) // Fix All
             {
                 AvatarMeshSettingsValidator.AddMeshSettingsToMultiple(missingSettings);
-                EditorUtility.DisplayDialog("Complete", 
-                    $"Added MAMeshSettings to {missingSettings.Length} avatar(s).", "OK");
+                EditorUtility.DisplayDialog(Localizer.Get("dialog.complete"), 
+                    string.Format(Localizer.Get("dialog.complete_message"), missingSettings.Length), "OK");
             }
             else if (result == 2) // Show Details
             {
-                var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>("Avatar Mesh Settings");
+                var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>(Localizer.Get("window.title"));
                 window.Show();
             }
         }
