@@ -141,4 +141,6 @@ Feel free to submit issues or pull requests to improve this tool.
 
 ## License
 
-This tool is provided as-is for use in VRChat avatar development projects.
+MIT License - Copyright (c) 2024 a1678991
+
+See [LICENSE](LICENSE) file for details.
