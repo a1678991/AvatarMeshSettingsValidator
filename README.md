@@ -141,6 +141,6 @@ Feel free to submit issues or pull requests to improve this tool.
 
 ## License
 
-MIT License - Copyright (c) 2024 a1678991
+MIT License - Copyright (c) 2025 a1678991
 
 See [LICENSE](LICENSE) file for details.
