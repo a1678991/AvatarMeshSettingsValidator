@@ -136,9 +136,47 @@ AvatarMeshSettingsValidator.AddMeshSettings(avatarGameObject);
 GameObject[] avatars = AvatarMeshSettingsValidator.FindAllAvatarsInScene();
 ```
 
+## Development
+
+### Exporting UnityPackage
+
+#### From Unity Editor
+1. Open the project containing the tool in Unity
+2. Go to `Tools > Avatar Tools > Export Package`
+3. Choose the save location for the .unitypackage file
+
+#### Quick Export
+- Use `Tools > Avatar Tools > Export Package (Quick)` to export directly to your Desktop
+
+### Creating Releases
+
+This repository uses GitHub Actions to automatically build UnityPackages when creating releases:
+
+1. Create a new release on GitHub
+2. The workflow will automatically:
+   - Build a UnityPackage file
+   - Attach it to the release
+3. Users can download the `.unitypackage` file from the release page
+
+### Manual Release Process
+1. Update version in `package.json`
+2. Update `CHANGELOG.md` with release notes
+3. Commit changes
+4. Create and push a new tag: `git tag v0.1.0 && git push origin v0.1.0`
+5. Create a GitHub release from the tag
+6. The UnityPackage will be built and attached automatically
+
 ## Contributing
 
 Feel free to submit issues or pull requests to improve this tool.
+
+### Development Setup
+1. Clone the repository
+2. Open in Unity 2022.3 or later
+3. Ensure VRChat SDK and ModularAvatar are installed
+4. Make your changes
+5. Test thoroughly with various avatar configurations
+6. Submit a pull request
 
 ## License
 
