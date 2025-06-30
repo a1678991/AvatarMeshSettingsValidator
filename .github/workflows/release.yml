@@ -1,0 +1,130 @@
+name: Build and Release UnityPackage
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for release'
+        required: true
+        default: 'v0.1.0'
+
+jobs:
+  build:
+    name: Build UnityPackage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+    
+    - name: Setup Unity Hub
+      run: |
+        wget -O UnityHub.AppImage https://public-cdn.cloud.unity3d.com/hub/prod/UnityHub.AppImage
+        chmod +x UnityHub.AppImage
+        ./UnityHub.AppImage --headless install-path --set ~/Unity/Hub/Editor/
+    
+    - name: Install Unity
+      run: |
+        ./UnityHub.AppImage --headless install --version 2022.3.22f1 --changeset 887be4894c44
+    
+    - name: Prepare export directory
+      run: |
+        mkdir -p Export
+        mkdir -p UnityProject/Assets
+        
+    - name: Copy package files to Unity project structure
+      run: |
+        # Create the package directory structure
+        mkdir -p UnityProject/Assets/AvatarMeshSettingsValidator
+        
+        # Copy all package files
+        cp -r Editor UnityProject/Assets/AvatarMeshSettingsValidator/
+        cp -r Editor.meta UnityProject/Assets/AvatarMeshSettingsValidator/ 2>/dev/null || true
+        cp README.md UnityProject/Assets/AvatarMeshSettingsValidator/
+        cp README.md.meta UnityProject/Assets/AvatarMeshSettingsValidator/ 2>/dev/null || true
+        cp CHANGELOG.md UnityProject/Assets/AvatarMeshSettingsValidator/
+        cp CHANGELOG.md.meta UnityProject/Assets/AvatarMeshSettingsValidator/ 2>/dev/null || true
+        cp LICENSE UnityProject/Assets/AvatarMeshSettingsValidator/
+        cp LICENSE.meta UnityProject/Assets/AvatarMeshSettingsValidator/ 2>/dev/null || true
+        cp package.json UnityProject/Assets/AvatarMeshSettingsValidator/
+        cp package.json.meta UnityProject/Assets/AvatarMeshSettingsValidator/ 2>/dev/null || true
+        
+        # Copy meta files if they exist
+        find . -name "*.meta" -not -path "./UnityProject/*" -not -path "./.git/*" | while read metafile; do
+          target_path="UnityProject/Assets/AvatarMeshSettingsValidator/${metafile#./}"
+          mkdir -p "$(dirname "$target_path")"
+          cp "$metafile" "$target_path" 2>/dev/null || true
+        done
+    
+    - name: Create Unity project files
+      run: |
+        # Create minimal ProjectSettings
+        mkdir -p UnityProject/ProjectSettings
+        
+        # Create ProjectVersion.txt
+        echo "m_EditorVersion: 2022.3.22f1" > UnityProject/ProjectSettings/ProjectVersion.txt
+        
+        # Create minimal ProjectSettings.asset
+        cat > UnityProject/ProjectSettings/ProjectSettings.asset << 'EOL'
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  productName: AvatarMeshSettingsValidator
+  companyName: a1678991
+EOL
+    
+    - name: Export UnityPackage
+      run: |
+        UNITY_PATH="$HOME/Unity/Hub/Editor/2022.3.22f1/Editor/Unity"
+        
+        # Create export script
+        cat > export_package.sh << 'EOL'
+#!/bin/bash
+"$1" -batchmode -nographics -quit \
+  -projectPath "$(pwd)/UnityProject" \
+  -exportPackage \
+  "Assets/AvatarMeshSettingsValidator" \
+  "../Export/AvatarMeshSettingsValidator.unitypackage" \
+  -logFile export.log
+EOL
+        
+        chmod +x export_package.sh
+        ./export_package.sh "$UNITY_PATH"
+        
+        # Check if export was successful
+        if [ ! -f "Export/AvatarMeshSettingsValidator.unitypackage" ]; then
+          echo "Export failed. Log contents:"
+          cat export.log
+          exit 1
+        fi
+        
+        # Get version from tag or input
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+        else
+          VERSION="${{ github.event.inputs.tag_name }}"
+        fi
+        
+        # Rename with version
+        mv Export/AvatarMeshSettingsValidator.unitypackage "Export/AvatarMeshSettingsValidator-${VERSION}.unitypackage"
+    
+    - name: Upload UnityPackage artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: unitypackage
+        path: Export/*.unitypackage
+        retention-days: 7
+    
+    - name: Upload to Release
+      if: github.event_name == 'release'
+      uses: softprops/action-gh-release@v2
+      with:
+        files: Export/*.unitypackage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
