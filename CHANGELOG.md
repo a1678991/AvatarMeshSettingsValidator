@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0-beta.1] - 2025-07-01
+
+### Added
+- GitHub Actions workflows for automated UnityPackage builds
+  - Standard workflow using Unity Hub installation
+  - GameCI-based workflow for containerized builds
+- PackageExporter utility for local package creation
+  - Editor menu integration for easy export
+  - Command-line support for automation
+- Export script for local development and testing
+- Comprehensive release documentation in README
+
+### Changed
+- Updated development workflow documentation
+- Enhanced contribution guidelines
+
+### Technical
+- Automated release process now creates .unitypackage files
+- Support for both manual and automated package exports
+
 ## [0.1.0] - 2025-07-01
 
 ### Added
