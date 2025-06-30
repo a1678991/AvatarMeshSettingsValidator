@@ -2,6 +2,11 @@
 
 A Unity Editor extension that ensures all VRChat avatars have proper MAMeshSettings configuration from ModularAvatar.
 
+![Unity](https://img.shields.io/badge/Unity-2022.3%2B-blue)
+![VRChat SDK](https://img.shields.io/badge/VRChat%20SDK-3.x-green)
+![ModularAvatar](https://img.shields.io/badge/ModularAvatar-1.x-orange)
+![License](https://img.shields.io/badge/License-MIT-yellow)
+
 ## What It Validates
 
 The tool checks that every VRChat avatar has:
@@ -30,9 +35,21 @@ Note: Anchor and Bounds validation can be individually enabled/disabled in the s
 
 ## Installation
 
-1. Ensure VRChat SDK and ModularAvatar are installed in your project
-2. Copy the `AvatarMeshSettingsValidator` folder to your `Assets/Tools/Editor/` directory
+### Method 1: Unity Package Manager (Recommended)
+1. Open Unity Package Manager (Window → Package Manager)
+2. Click the + button and select "Add package from git URL"
+3. Enter: `https://github.com/a1678991/AvatarMeshSettingsValidator.git`
+4. Click Add
+
+### Method 2: Manual Installation
+1. Download the latest release from the [Releases page](https://github.com/a1678991/AvatarMeshSettingsValidator/releases)
+2. Extract to your Unity project's `Assets` folder
 3. Unity will automatically compile and activate the extension
+
+### Method 3: Git Submodule
+```bash
+git submodule add https://github.com/a1678991/AvatarMeshSettingsValidator.git Assets/AvatarMeshSettingsValidator
+```
 
 ## Usage
 
