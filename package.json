@@ -1,7 +1,7 @@
 {
   "name": "com.avatartools.meshsettingsvalidator",
   "displayName": "Avatar Mesh Settings Validator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "unity": "2022.3",
   "description": "Unity Editor extension that ensures all VRChat avatars have proper MAMeshSettings configuration from ModularAvatar.",
   "author": {

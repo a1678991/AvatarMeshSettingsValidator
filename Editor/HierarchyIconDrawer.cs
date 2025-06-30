@@ -78,24 +78,24 @@ namespace AvatarTools.Editor
                     var result = AvatarValidationCache.Instance.GetOrValidate(obj);
                     if (result.Issues.Contains(ValidationIssue.MissingMAMeshSettings))
                     {
-                        tooltip = $"{obj.name}: Missing MAMeshSettings component";
+                        tooltip = string.Format(Localizer.Get("tooltip.error_icon"), obj.name, Localizer.Get("validation.missing_component"));
                     }
                     else if (result.Issues.Contains(ValidationIssue.InvalidAnchorOverride))
                     {
-                        tooltip = $"{obj.name}: Invalid Anchor Override or Bounds configuration (must be Set with valid target)";
+                        tooltip = string.Format(Localizer.Get("tooltip.error_icon"), obj.name, Localizer.Get("validation.invalid_anchor"));
                     }
                     else if (result.Issues.Contains(ValidationIssue.InvalidConfiguration))
                     {
-                        tooltip = $"{obj.name}: Invalid MAMeshSettings configuration";
+                        tooltip = string.Format(Localizer.Get("tooltip.error_icon"), obj.name, Localizer.Get("validation.invalid_config"));
                     }
                     break;
                 case IconType.Warning:
                     icon = AvatarMeshSettingsValidator.Settings.WarningIcon;
-                    tooltip = $"{obj.name}: Child avatar(s) have configuration issues";
+                    tooltip = string.Format(Localizer.Get("tooltip.warning_icon"), obj.name);
                     break;
                 case IconType.Valid:
                     icon = AvatarMeshSettingsValidator.Settings.ValidIcon;
-                    tooltip = $"{obj.name}: Avatar properly configured";
+                    tooltip = string.Format(Localizer.Get("tooltip.valid_icon"), obj.name);
                     break;
             }
 

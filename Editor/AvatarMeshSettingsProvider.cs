@@ -41,27 +41,47 @@ namespace AvatarTools.Editor
         {
             _serializedSettings.Update();
             
-            EditorGUILayout.LabelField("Avatar Mesh Settings Validator Configuration", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localizer.Get("settings.title"), EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+            
+            // Language Selection
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("Language / 言語 / 语言");
+            var currentLang = Localizer.GetCurrentLanguage();
+            var availableLangs = Localizer.GetAvailableLanguages();
+            var langIndex = System.Array.IndexOf(availableLangs, currentLang);
+            var displayNames = new string[availableLangs.Length];
+            for (int i = 0; i < availableLangs.Length; i++)
+            {
+                displayNames[i] = Localizer.GetLanguageDisplayName(availableLangs[i]);
+            }
+            var newLangIndex = EditorGUILayout.Popup(langIndex, displayNames);
+            if (newLangIndex != langIndex)
+            {
+                Localizer.SetLanguage(availableLangs[newLangIndex]);
+                EditorApplication.RepaintHierarchyWindow();
+            }
+            EditorGUILayout.EndHorizontal();
             EditorGUILayout.Space();
             
             // Display Options
-            EditorGUILayout.LabelField("Display Options", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localizer.Get("settings.display_options"), EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ShowHierarchyIcons"), 
-                new GUIContent("Show Hierarchy Icons", "Display validation icons in the Unity Hierarchy window"));
+                Localizer.GetContent("settings.show_hierarchy_icons", "settings.show_hierarchy_icons_tooltip"));
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ShowValidIcons"), 
-                new GUIContent("Show Valid Icons", "Show green checkmarks for properly configured avatars"));
+                Localizer.GetContent("settings.show_valid_icons", "settings.show_valid_icons_tooltip"));
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("RecursiveValidation"), 
-                new GUIContent("Recursive Validation", "Check child GameObjects for avatar issues"));
+                Localizer.GetContent("settings.recursive_validation", "settings.recursive_validation_tooltip"));
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
             
             // Icon Configuration
-            EditorGUILayout.LabelField("Icon Configuration", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localizer.Get("settings.icon_configuration"), EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ErrorIcon"), 
@@ -77,37 +97,37 @@ namespace AvatarTools.Editor
             EditorGUILayout.Space();
             
             // Validation Rules
-            EditorGUILayout.LabelField("Validation Rules", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localizer.Get("settings.validation_rules"), EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ValidateAnchorOverride"), 
-                new GUIContent("Validate Anchor Override", "Check that Anchor Override is set to 'Set' with a valid target"));
+                Localizer.GetContent("settings.validate_anchor", "settings.validate_anchor_tooltip"));
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ValidateBoundsOverride"), 
-                new GUIContent("Validate Bounds Override", "Check that Bounds Override is set to 'Set' with a valid target"));
+                Localizer.GetContent("settings.validate_bounds", "settings.validate_bounds_tooltip"));
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("RequireNonDefaultBounds"), 
-                new GUIContent("Require Non-Default Bounds", "Fail validation if bounds are at default values"));
+                Localizer.GetContent("settings.require_non_default_bounds", "settings.require_non_default_bounds_tooltip"));
             
             EditorGUILayout.PropertyField(_serializedSettings.FindProperty("ValidatePrefabs"), 
-                new GUIContent("Validate Prefabs", "Include prefabs in project-wide validation"));
+                Localizer.GetContent("settings.validate_prefabs", "settings.validate_prefabs_tooltip"));
             
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
             
             // Actions
-            EditorGUILayout.LabelField("Actions", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(Localizer.Get("settings.actions"), EditorStyles.boldLabel);
             
             EditorGUILayout.BeginHorizontal();
             
-            if (GUILayout.Button("Open Validator Window", GUILayout.Height(30)))
+            if (GUILayout.Button(Localizer.Get("settings.open_validator"), GUILayout.Height(30)))
             {
                 EditorWindow.GetWindow<AvatarMeshSettingsWindow>("Avatar Mesh Settings");
             }
             
-            if (GUILayout.Button("Validate All Avatars", GUILayout.Height(30)))
+            if (GUILayout.Button(Localizer.Get("settings.validate_all_avatars"), GUILayout.Height(30)))
             {
-                var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>("Avatar Mesh Settings");
+                var window = EditorWindow.GetWindow<AvatarMeshSettingsWindow>(Localizer.Get("window.title"));
                 window.Show();
             }
             
@@ -115,11 +135,11 @@ namespace AvatarTools.Editor
             
             EditorGUILayout.Space();
             
-            if (GUILayout.Button("Reset to Defaults"))
+            if (GUILayout.Button(Localizer.Get("settings.reset_to_defaults")))
             {
-                if (EditorUtility.DisplayDialog("Reset Settings", 
-                    "Are you sure you want to reset all settings to their default values?", 
-                    "Reset", "Cancel"))
+                if (EditorUtility.DisplayDialog(Localizer.Get("dialog.reset_settings"), 
+                    Localizer.Get("dialog.reset_confirm"), 
+                    Localizer.Get("dialog.reset"), Localizer.Get("dialog.cancel")))
                 {
                     Undo.RecordObject(_settings, "Reset Avatar Validator Settings");
                     

@@ -221,7 +221,7 @@ namespace AvatarTools.Editor
                 }
                 else
                 {
-                    Debug.LogWarning($"Could not find Hips bone in {avatar.name}. Please set Anchor Override manually.");
+                    Debug.LogWarning(string.Format(Localizer.Get("log.hips_not_found"), avatar.name));
                 }
             }
             
@@ -237,7 +237,7 @@ namespace AvatarTools.Editor
                 }
                 else
                 {
-                    Debug.LogWarning($"Could not find Hips bone in {avatar.name}. Please set Bounds Root Bone manually.");
+                    Debug.LogWarning(string.Format(Localizer.Get("log.bounds_not_found"), avatar.name));
                 }
             }
             
@@ -246,21 +246,25 @@ namespace AvatarTools.Editor
             
             if (wasNewComponent)
             {
-                string message = $"Added MAMeshSettings to {avatar.name}";
                 if (Settings.ValidateAnchorOverride || Settings.ValidateBoundsOverride)
                 {
-                    message += " with Hips as override target";
+                    Debug.Log(string.Format(Localizer.Get("log.added_with_hips"), avatar.name));
                 }
-                Debug.Log(message);
+                else
+                {
+                    Debug.Log(string.Format(Localizer.Get("log.added_settings"), avatar.name));
+                }
             }
             else
             {
-                string message = $"Updated MAMeshSettings on {avatar.name}";
                 if (Settings.ValidateAnchorOverride || Settings.ValidateBoundsOverride)
                 {
-                    message += " - fixed override configuration";
+                    Debug.Log(string.Format(Localizer.Get("log.updated_with_fix"), avatar.name));
                 }
-                Debug.Log(message);
+                else
+                {
+                    Debug.Log(string.Format(Localizer.Get("log.updated_settings"), avatar.name));
+                }
             }
 #endif
         }
