@@ -10,11 +10,13 @@ on:
         required: true
         default: 'v0.1.0'
 
+env:
+  UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+
 jobs:
   build:
     name: Build UnityPackage
     runs-on: ubuntu-latest
-    container: unityci/editor:ubuntu-2022.3.22f1-base-3.1.0
     
     steps:
     - name: Checkout repository
@@ -26,7 +28,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: UnityProject/Library
-        key: Library-build
+        key: Library-${{ hashFiles('UnityProject/ProjectSettings/ProjectVersion.txt') }}
         restore-keys: |
           Library-
     
@@ -35,7 +37,6 @@ jobs:
         # Create Unity project structure
         mkdir -p UnityProject/Assets/AvatarMeshSettingsValidator
         mkdir -p UnityProject/ProjectSettings
-        mkdir -p Export
         
         # Copy package files
         cp -r Editor UnityProject/Assets/AvatarMeshSettingsValidator/
@@ -66,7 +67,7 @@ PlayerSettings:
   serializedVersion: 24
   productGUID: 00000000000000000000000000000000
   AndroidProfiler: 0
-  AndroidFilterTouchesWhenObscured: 0
+  AndroidFilterTouchesWhenObscurred: 0
   AndroidEnableSustainedPerformanceMode: 0
   defaultScreenOrientation: 4
   targetDevice: 2
@@ -77,17 +78,8 @@ PlayerSettings:
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
 EOL
-    
-    - name: Export UnityPackage
-      run: |
-        # Get version
-        if [ "${{ github.event_name }}" = "release" ]; then
-          VERSION="${{ github.event.release.tag_name }}"
-        else
-          VERSION="${{ github.event.inputs.tag_name }}"
-        fi
-        
-        # Create export script
+
+        # Create export script in Unity project
         cat > UnityProject/Assets/ExportPackage.cs << 'EOL'
 using UnityEngine;
 using UnityEditor;
@@ -95,7 +87,6 @@ using System.IO;
 
 public class PackageExporter
 {
-    [MenuItem("Tools/Export Package")]
     public static void ExportPackage()
     {
         string[] assetPaths = new string[] {
@@ -103,52 +94,84 @@ public class PackageExporter
         };
         
         string version = System.Environment.GetEnvironmentVariable("PACKAGE_VERSION") ?? "v0.1.0";
-        string packagePath = $"../Export/AvatarMeshSettingsValidator-{version}.unitypackage";
+        string packagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "AvatarMeshSettingsValidator-" + version + ".unitypackage");
         
-        // Ensure export directory exists
-        Directory.CreateDirectory(Path.GetDirectoryName(packagePath));
+        Debug.Log($"Exporting package to: {packagePath}");
         
         AssetDatabase.ExportPackage(assetPaths, packagePath, 
             ExportPackageOptions.Recurse | ExportPackageOptions.IncludeDependencies);
         
-        Debug.Log($"Package exported to: {packagePath}");
+        Debug.Log($"Package exported successfully to: {packagePath}");
         
         // Exit Unity
         EditorApplication.Exit(0);
     }
 }
 EOL
-        
-        # Run Unity to export the package
-        PACKAGE_VERSION="$VERSION" xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' \
-          unity-editor \
-          -projectPath "$(pwd)/UnityProject" \
-          -batchmode \
-          -nographics \
-          -quit \
-          -executeMethod PackageExporter.ExportPackage \
-          -logFile export.log
-        
-        # Check if export was successful
-        if [ ! -f "Export/AvatarMeshSettingsValidator-${VERSION}.unitypackage" ]; then
-          echo "Export failed. Log contents:"
-          cat export.log || true
-          exit 1
+    
+    - name: Build UnityPackage with GameCI
+      uses: game-ci/unity-builder@v4
+      env:
+        UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+        UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        PACKAGE_VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.tag_name }}
+      with:
+        projectPath: UnityProject
+        unityVersion: 2022.3.22f1
+        targetPlatform: StandaloneLinux64
+        buildMethod: PackageExporter.ExportPackage
+        customParameters: -quit
+    
+    - name: Get version for artifact naming
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "release" ]; then
+          VERSION="${{ github.event.release.tag_name }}"
+        else
+          VERSION="${{ github.event.inputs.tag_name }}"
         fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Using version: $VERSION"
+    
+    - name: Verify and rename UnityPackage
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        EXPECTED_FILE="AvatarMeshSettingsValidator-${VERSION}.unitypackage"
         
-        echo "Successfully exported package: AvatarMeshSettingsValidator-${VERSION}.unitypackage"
+        # List all .unitypackage files for debugging
+        echo "Looking for UnityPackage files:"
+        find . -name "*.unitypackage" -type f
+        
+        # Check if the expected file exists
+        if [ -f "$EXPECTED_FILE" ]; then
+          echo "Found expected package: $EXPECTED_FILE"
+          mkdir -p artifacts
+          cp "$EXPECTED_FILE" "artifacts/"
+        else
+          echo "Expected package not found. Checking for any .unitypackage files..."
+          FOUND_PACKAGE=$(find . -name "*.unitypackage" -type f | head -n 1)
+          if [ -n "$FOUND_PACKAGE" ]; then
+            echo "Found package at: $FOUND_PACKAGE"
+            mkdir -p artifacts
+            cp "$FOUND_PACKAGE" "artifacts/AvatarMeshSettingsValidator-${VERSION}.unitypackage"
+          else
+            echo "No UnityPackage file found! Build may have failed."
+            exit 1
+          fi
+        fi
     
     - name: Upload UnityPackage artifact
       uses: actions/upload-artifact@v4
       with:
-        name: unitypackage
-        path: Export/*.unitypackage
+        name: unitypackage-${{ steps.version.outputs.version }}
+        path: artifacts/*.unitypackage
         retention-days: 7
     
     - name: Upload to Release
       if: github.event_name == 'release'
       uses: softprops/action-gh-release@v2
       with:
-        files: Export/*.unitypackage
+        files: artifacts/*.unitypackage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
