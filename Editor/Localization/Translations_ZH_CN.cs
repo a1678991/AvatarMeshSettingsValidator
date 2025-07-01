@@ -16,8 +16,8 @@ namespace AvatarTools.Editor
                 
                 // Validation Messages
                 ["validation.missing_component"] = "缺少 MAMeshSettings 组件",
-                ["validation.invalid_anchor"] = "无效的锚点覆盖配置（必须设置为"Set"并具有有效目标）",
-                ["validation.invalid_bounds"] = "无效的边界配置（必须设置为"Set"并具有有效目标）",
+                ["validation.invalid_anchor"] = "无效的锚点覆盖配置（必须设置为Set并具有有效目标）",
+                ["validation.invalid_bounds"] = "无效的边界配置（必须设置为Set并具有有效目标）",
                 ["validation.invalid_config"] = "无效的 MAMeshSettings 配置",
                 ["validation.child_issues"] = "子虚拟形象存在配置问题",
                 ["validation.properly_configured"] = "虚拟形象配置正确",
@@ -50,9 +50,9 @@ namespace AvatarTools.Editor
                 ["settings.recursive_validation_tooltip"] = "检查子游戏对象的虚拟形象问题",
                 ["settings.validation_rules"] = "验证规则",
                 ["settings.validate_anchor"] = "验证锚点覆盖",
-                ["settings.validate_anchor_tooltip"] = "检查锚点覆盖是否设置为"Set"并具有有效目标",
+                ["settings.validate_anchor_tooltip"] = "检查锚点覆盖是否设置为Set并具有有效目标",
                 ["settings.validate_bounds"] = "验证边界覆盖",
-                ["settings.validate_bounds_tooltip"] = "检查边界覆盖是否设置为"Set"并具有有效目标",
+                ["settings.validate_bounds_tooltip"] = "检查边界覆盖是否设置为Set并具有有效目标",
                 ["settings.require_non_default_bounds"] = "要求非默认边界",
                 ["settings.require_non_default_bounds_tooltip"] = "如果边界为默认值，则验证失败",
                 ["settings.validate_prefabs"] = "验证预制体",
